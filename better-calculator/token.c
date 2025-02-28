@@ -18,3 +18,22 @@ typedef struct {
     char literal[32]; 
 } Token;
 
+// AST Node definitions
+typedef enum {
+    AST_INT,
+    AST_OP
+} NodeType;
+
+typedef struct ASTNode {
+    NodeType type;
+    Token token;
+    struct ASTNode *left;
+    struct ASTNode *right;
+} ASTNode;
+
+// Constant macro
+#define MAX_TOKENS 128
+
+Token tokens[MAX_TOKENS];
+int tokenCount = 0;
+int currentTokenIndex = 0;
