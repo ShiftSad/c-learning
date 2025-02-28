@@ -48,16 +48,25 @@ int main() {
     char input[128];
     printf("Type operation: ");
 
-    fgets(input, sizeof(input), stdin);
-    input[strlen(input) - 1] = '\0'; // Remove \n at the last character
-
-    // Remove spaces
-    int temp = 0;
-    char operation[sizeof(input)];
-    for (int i = 0; i < strlen(input); i++) {
-        // 32 is the unicode for space
-        if (input[i] != 32) operation[temp++] = input[i];
+    if (!fgets(input, sizeof(input), stdin)) {
+        printf("Error reading input.\n");
+        return 1;
     }
+    
+    // Remove trailing newline
+    size_t len = strlen(input);
+    if (len > 0 && input[len - 1] == '\n') {
+        input[len - 1] = '\0';
+        len--;
+    }
+    
+    // Remove spaces
+    char operation[128];
+    size_t temp = 0;
+    for (size_t i = 0; i < len; i++) {
+        if (input[i] != ' ') operation[temp++] = input[i];
+    }
+    operation[temp] = '\0';  // Null-terminate properly
 
     // Check if operation is valid
     printf("Are braces valid? %i\n", balanced(operation));
