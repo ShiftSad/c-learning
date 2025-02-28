@@ -12,38 +12,42 @@ typedef struct {
     int n;
 } ThreadData;
 
+// Thanks chatgpt
+double get_wall_time() {
+    struct timespec ts;
+    clock_gettime(1, &ts);
+    return ts.tv_sec + ts.tv_nsec / 1e9;
+}
+
+// https://stackoverflow.com/questions/74210984/how-to-achieve-parallelism-in-c :)
 void *thread_function(void *arg) {
     ThreadData *data = (ThreadData *)arg;
-    clock_t start = clock();
+    double start = get_wall_time();
     long double result = data->func(data->n);
-    clock_t end = clock();
+    double end = get_wall_time();
+    double elapsed = end - start;
 
-    double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("%s >> %.8Lf (Time: %.5f seconds)\n", data->methodName, result, time_taken);
-    
+    printf("%s >> %.8Lf (Elapsed time: %.5f seconds)\n", data->methodName, result, elapsed);
     return NULL;
 }
 
 // Thanks https://en.wikipedia.org/wiki/Pi :)
 long double gregoryLeibnizSeries(int n) {
-    long double pi = 0.0;
+    long double pi = 0.0L;
 
     for (int i = 0; i < n; i++) {
-        pi += (i % 2 == 0 ? 1.0 : -1.0) / (2.0 * i + 1.0);
+        pi += (i % 2 == 0 ? 1.0L : -1.0L) / (2.0L * i + 1.0L);
     }
 
-    pi *= 4;
-
-    return pi;
+    return pi *= 4;
 }
 
 // Thanks https://en.wikipedia.org/wiki/Pi :)
 long double baselProblem(int n) {
     long double pi = 0.0;
-    long double one = 1.0;
 
     for (long double i = 1; i < n; i++) {
-        pi += (one / (i * i));
+        pi += (1.0L / (i * i));
     }
 
     pi *= 6.0L;
