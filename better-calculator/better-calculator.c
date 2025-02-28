@@ -22,6 +22,7 @@ const char *check_brace(const char str[], int endc) {
 int balanced(const char *line) {
     return check_brace(line, '\0') != NULL;
 }
+// End of copied answer
 
 // Check for trailing and duplicated signs
 int validSigns(const char *operation) {
