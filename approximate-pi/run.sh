@@ -1,1 +1,1 @@
-clang pi.c -o ./pi -lm && ./pi 
+clang pi.c -o ./pi -lm -pthread && ./pi 

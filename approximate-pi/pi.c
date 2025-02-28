@@ -1,17 +1,27 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include <pthread.h>
 
 typedef long double (*piFunc)(int);
 
-void printResult(const char *methodName, piFunc func, int n) {
+// Structure to hold data for each thread.
+typedef struct {
+    const char *methodName;
+    piFunc func;
+    int n;
+} ThreadData;
+
+void *thread_function(void *arg) {
+    ThreadData *data = (ThreadData *)arg;
     clock_t start = clock();
-    long double result = func(n);
+    long double result = data->func(data->n);
     clock_t end = clock();
 
     double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
-
-    printf("%s >> %.8Lf (Time: %.5f seconds)\n", methodName, result, time_taken);
+    printf("%s >> %.8Lf (Time: %.5f seconds)\n", data->methodName, result, time_taken);
+    
+    return NULL;
 }
 
 // Thanks https://en.wikipedia.org/wiki/Pi :)
@@ -43,10 +53,19 @@ long double baselProblem(int n) {
 }
 
 int main() {
-    const int n = 1e5;
+    const int n = 1e9;
 
-    printResult("Gregory Leibniz", gregoryLeibnizSeries, n);
-    printResult("Basel Problem", baselProblem, n);
+    // 2 threads for 2 functions
+    pthread_t threads[2];
+    ThreadData data1 = {"Gregory Leibniz", gregoryLeibnizSeries, n};
+    ThreadData data2 = {"Basel Problem", baselProblem, n};
+
+    pthread_create(&threads[0], NULL, thread_function, &data1);
+    pthread_create(&threads[1], NULL, thread_function, &data2);
+
+    // Wait for both threads to finish.
+    pthread_join(threads[0], NULL);
+    pthread_join(threads[1], NULL);
 
     return 0;
 }
