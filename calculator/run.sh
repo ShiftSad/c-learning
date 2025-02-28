@@ -1,1 +1,1 @@
-gcc calculator.c -o ./calculator && ./calculator 
+clang calculator.c -o ./calculator && ./calculator 

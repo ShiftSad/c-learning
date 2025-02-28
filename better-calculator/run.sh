@@ -1,1 +1,1 @@
-gcc better-calculator.c -o ./better-calculator && ./better-calculator 
+clang better-calculator.c -o ./better-calculator && ./better-calculator 
