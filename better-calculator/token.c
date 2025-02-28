@@ -37,3 +37,5 @@ typedef struct ASTNode {
 Token tokens[MAX_TOKENS];
 int tokenCount = 0;
 int currentTokenIndex = 0;
+
+// I have no idea how to procced past this :(
