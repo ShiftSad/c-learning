@@ -22,7 +22,9 @@ jobs:
               run: |
                 for dir in */; do
                     cd "$dir"
-                    clang -o "${dir%/}" *.c
+                    bin_name="linux-${dir%/}"
+                    clang -o "$bin_name" *.c
+                    mv "$bin_name" ../  # Move to root directory for easy upload
                     cd ..
                 done
             
@@ -30,30 +32,33 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                 name: linux-binaries
-                path: "*/better-calculator */calculator" # Make it automagically upload all paths
+                path: linux-*
+                if-no-files-found: error
+                retention-days: 60
 
     # Is there a way to abstract stuff in github workflows?
-    build-windows:
-        name: Build on Windows
-        runs-on: windows-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    # temporary removed, as it is more expensive
+    # build-windows:
+    #     name: Build on Windows
+    #     runs-on: windows-latest
+    #     steps:
+    #         - name: Checkout repository
+    #           uses: actions/checkout@v4
     
-            - name: Install LLVM (Clang)
-              run: choco install llvm -y
+    #         - name: Install LLVM (Clang)
+    #           run: choco install llvm -y
 
-            - name: Build each C file
-              shell: bash
-              run: |
-                for dir in */; do
-                  cd "$dir"
-                  clang -o "${dir%/}.exe" *.c
-                  cd ..
-                done
+    #         - name: Build each C file
+    #           shell: bash
+    #           run: |
+    #             for dir in */; do
+    #               cd "$dir"
+    #               clang -o "${dir%/}.exe" *.c
+    #               cd ..
+    #             done
 
-            - name: Upload Windows binaries
-              uses: actions/upload-artifact@v4
-              with:
-                name: windows-binaries
-                path: "*/better-calculator.exe */calculator.exe"
+    #         - name: Upload Windows binaries
+    #           uses: actions/upload-artifact@v4
+    #           with:
+    #             name: windows-binaries
+    #             path: "*/better-calculator.exe */calculator.exe"
