@@ -52,7 +52,7 @@ jobs:
               run: |
                 for dir in */; do
                     cd "$dir"
-                    bin_name="linux-${dir%/}"
+                    bin_name="windows-${dir%/}"
                     clang -o "$bin_name" *.c
                     mv "$bin_name" ../  # Move to root directory for easy upload
                     cd ..
