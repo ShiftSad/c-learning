@@ -1,16 +1,17 @@
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 
-long double gregoryLeibnizSeries(int n);
-long double baselProblem(int n);
+typedef long double (*piFunc)(int);
 
-int main() {
-    const int n = 1e9;
+void printResult(const char *methodName, piFunc func, int n) {
+    clock_t start = clock();
+    long double result = func(n);
+    clock_t end = clock();
 
-    printf("Gregory Leibniz >> %.12Lf\n", gregoryLeibnizSeries(n));
-    printf("Basel Problem >> %.12Lf \n", baselProblem(n));
+    double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
 
-    return 0;
+    printf("%s >> %.8Lf (Time: %.5f seconds)\n", methodName, result, time_taken);
 }
 
 // Thanks https://en.wikipedia.org/wiki/Pi :)
@@ -39,4 +40,13 @@ long double baselProblem(int n) {
     pi = sqrtl(pi);
 
     return pi;
+}
+
+int main() {
+    const int n = 1e5;
+
+    printResult("Gregory Leibniz", gregoryLeibnizSeries, n);
+    printResult("Basel Problem", baselProblem, n);
+
+    return 0;
 }
