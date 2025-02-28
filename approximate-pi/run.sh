@@ -1,1 +1,1 @@
-clang pi.c -o ./pi && ./pi 
+clang pi.c -o ./pi -lm && ./pi 
