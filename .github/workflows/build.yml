@@ -3,8 +3,7 @@ name: Build C Project
 on:
     push:
         branches:
-            - main
-            - feature/auto-upload
+            - master
     pull_request:
 
 jobs:
