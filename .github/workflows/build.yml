@@ -1,0 +1,68 @@
+name: Build C Project
+
+on:
+    push:
+        branches:
+            - main
+            - feature/auto-upload
+    pull_request:
+
+jobs:
+    build-linux:
+        name: Build on Linux
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            
+            - name: Install clang
+              run: sudo apt-get update && sudo apt-get install -y clang
+            
+            - name: Build each C file
+              run: |
+                for dir in */; do
+                    cd "$dir"
+                    bin_name="linux-${dir%/}"
+                    clang -o "$bin_name" *.c
+                    mv "$bin_name" ../  # Move to root directory for easy upload
+                    cd ..
+                done
+            
+            - name: Upload Linux binaries
+              uses: actions/upload-artifact@v4
+              with:
+                name: linux-binaries
+                path: linux-*
+                if-no-files-found: error
+                retention-days: 60
+
+    # Is there a way to abstract stuff in github workflows?
+    build-windows:
+        name: Build on Windows
+        runs-on: windows-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+    
+            - name: Install LLVM (Clang)
+              run: choco install llvm -y
+
+            - name: Build each C file
+              shell: bash
+              run: |
+                for dir in */; do
+                    cd "$dir"
+                    bin_name="windows-${dir%/}.exe"
+                    clang -o "$bin_name" *.c
+                    mv "$bin_name" ../  # Move to root directory for easy upload
+                    cd ..
+                done
+
+            - name: Upload Windows binaries
+              uses: actions/upload-artifact@v4
+              with:
+                name: windows-binaries
+                path: windows-*.exe
+                if-no-files-found: error
+                retention-days: 60
+  
