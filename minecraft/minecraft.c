@@ -8,6 +8,48 @@
 #define PORT 8080
 #define BUFFER_SIZE 1024
 
+const char *server_response = 
+    "{"
+    "\"version\": {\"name\": \"1.20.4\", \"protocol\": 764},"
+    "\"players\": {\"max\": 100, \"online\": 5},"
+    "\"description\": {\"text\": \"Hello from C Server!\"}"
+    "}";
+
+/**
+What is a VarInt?
+- It is a (Variable-Length Integer), a number enconding format used in Minecraft's protocol, (and Google's protobuf) to efficiently store
+integers in smaller values, taking up less space.
+How that is done?
+- The most significant bit is dedicated as a continuation, if it is set to 1, continue reading, else, stop.
+*/
+
+// https://stackoverflow.com/questions/19758270/read-varint-from-linux-sockets
+int read_varint(int socket, int *out) {
+    int result = 0, shift = 0;
+    unsigned char byte;
+    do {
+        if (read(socket, &byte, 1) <= 0) return 0;
+        result |= (byte & 0x7F) << shift;
+        shift += 7;
+    } while (byte & 0x80);
+    *out = result;
+    return 1;
+}
+
+// Writes a VarInt to a buffer
+int write_varint(unsigned char *buffer, int value) {
+    int i = 0;
+    while (1) {
+        if ((value & ~0x7F) == 0) {
+            buffer[i++] = value;
+            break;
+        }
+        buffer[i++] = (value & 0x7F) | 0x80;
+        value >>= 7;
+    }
+    return i;
+}
+
 void *handle_client(void *socket_desc) {
     int client_socket = *(int *)socket_desc;
     free(socket_desc);
