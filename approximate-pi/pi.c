@@ -84,7 +84,7 @@ int main() {
     const int n = 1e9;
 
     // 2 threads for 2 functions
-    pthread_t threads[2];
+    thread_t  threads[2];
     ThreadData data1 = {"Gregory Leibniz", gregoryLeibnizSeries, n};
     ThreadData data2 = {"Basel Problem", baselProblem, n};
 
