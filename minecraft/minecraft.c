@@ -5,7 +5,7 @@
 #include <string.h>
 #include <unistd.h> 
 
-#define PORT 8080
+#define PORT 25565
 #define BUFFER_SIZE 4096
 
 const char *server_response = 
