@@ -3,7 +3,7 @@ name: Build C Project
 on:
     push:
         branches:
-            - main
+            - master
             - feature/auto-upload
     pull_request:
 
@@ -23,7 +23,7 @@ jobs:
                 for dir in */; do
                     cd "$dir"
                     bin_name="linux-${dir%/}"
-                    clang -o "$bin_name" *.c
+                    clang -o "$bin_name" *.c -lm -pthread
                     mv "$bin_name" ../  # Move to root directory for easy upload
                     cd ..
                 done
@@ -53,7 +53,7 @@ jobs:
                 for dir in */; do
                     cd "$dir"
                     bin_name="windows-${dir%/}.exe"
-                    clang -o "$bin_name" *.c
+                    clang -o "$bin_name" *.c -lm -pthread
                     mv "$bin_name" ../  # Move to root directory for easy upload
                     cd ..
                 done
