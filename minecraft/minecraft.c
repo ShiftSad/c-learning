@@ -1,9 +1,13 @@
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h> 
 
 #define PORT 8080
+#define BUFFER_SIZE 1024
 
+// Thanks GeeksForGeeks https://www.geeksforgeeks.org/socket-programming-cc/
 int main() {
     int server_fd;
 
@@ -38,4 +42,27 @@ int main() {
     }
 
     printf("Server listening on port %d...\n", PORT);
+
+    int new_socket;
+    socklen_t addrlen = sizeof(address);
+    new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen);
+    if (new_socket < 0) {
+        perror("Accept failed");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Connection established.\n");
+
+    char buffer[BUFFER_SIZE] = { 0 };
+    while (1) {
+        int valread = read(new_socket, buffer, BUFFER_SIZE);
+        if (valread <= 0) {
+            printf("Client disconnected.\n");
+            break;
+        }
+
+        printf("Received: %s\n", buffer);
+        send(new_socket, buffer, valread, 0); // Echo back
+        memset(buffer, 0, BUFFER_SIZE);
+    }
 }
