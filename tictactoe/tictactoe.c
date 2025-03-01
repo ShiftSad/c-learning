@@ -28,24 +28,97 @@ int isValidMove(struct Move move) {
 }
 
 enum Scores {
-    WIN = 1,
-    LOSE = -1,
+    WIN = 1,   // AI wins
+    LOSE = -1, // Human wins
     TIE = 0
 };
 
+int countMoves() {
+    int count = 0;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (board[i][j] != noone)
+                count++;
+        }
+    }
+    return count;
+}
+
+int checkWin(char p, int movesCount) {
+    // Check rows and columns
+    for (int i = 0; i < 3; i++) {
+        if ((board[i][0] == p && board[i][1] == p && board[i][2] == p) ||
+            (board[0][i] == p && board[1][i] == p && board[2][i] == p))
+            return 1;
+    }
+    // Check diagonals
+    if ((board[0][0] == p && board[1][1] == p && board[2][2] == p) ||
+        (board[0][2] == p && board[1][1] == p && board[2][0] == p))
+        return 1;
+
+    if (movesCount == 9)
+        return 2; // Tie
+
+    return 0;
+}
+
+// Fire video 🔥
+// https://www.youtube.com/watch?v=trKjYdBASyQ
 int minimax(int depth, int isMaximizing) {
-    return 1;
+    int movesCount = countMoves();
+
+    if (checkWin(opponent, movesCount) == 1)
+        return WIN;
+    if (checkWin(player, movesCount) == 1)
+        return LOSE;
+    if (movesCount == 9)
+        return TIE;
+
+    if (isMaximizing) {
+        // AI's turn
+        int bestScore = -1000;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == noone) {
+                    board[i][j] = opponent;
+                    int score = minimax(depth + 1, 0);
+                    board[i][j] = noone;
+                    if (score > bestScore)
+                        bestScore = score;
+                }
+            }
+        }
+        return bestScore;
+    }
+
+    // Human's turn
+    int bestScore = 1000;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (board[i][j] == noone) {
+                board[i][j] = player;
+                int score = minimax(depth + 1, 1);
+                board[i][j] = noone;
+                if (score < bestScore)
+                    bestScore = score;
+            }
+        }
+    }
+
+    return bestScore;
 }
 
 struct Move bestMove() {
-    int bestScore = -1e9;
+    int bestScore = -1000;
     struct Move bestMove;
+    bestMove.row = -1;
+    bestMove.col = -1;
 
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             if (board[i][j] == noone) {
                 board[i][j] = opponent;
-                int score = minimax(0, 1);
+                int score = minimax(0, 0);
                 board[i][j] = noone;
                 if (score > bestScore) {
                     bestScore = score;
@@ -55,30 +128,7 @@ struct Move bestMove() {
             }
         }
     }
-
     return bestMove;
-}
-
-int checkWin(char player, int movesCount) {
-    // Check for rows and columns
-    for (int i = 0; i < 3; i++) {
-        if ((board[i][0] == player && board[i][1] == player && board[i][2] == player) ||
-            (board[0][i] == player && board[1][i] == player && board[2][i] == player)) {
-            return 1;
-        }
-    }
-
-    // Check diagonals
-    if ((board[0][0] == player && board[1][1] == player && board[2][2] == player) ||
-        (board[0][2] == player && board[1][1] == player && board[2][0] == player)) {
-        return 1;
-    }
-
-    if (movesCount == 9) {
-        return 2; // Tie
-    }
-
-    return 0;
 }
 
 int main() {
@@ -88,41 +138,52 @@ int main() {
     struct Move move;
     int movesCount = 0;
     
-    // Todo -> Game running
     while (1) {
         if (currentPlayer == opponent) {
-            // It's ai's turn.
+            // AI's turn.
             move = bestMove();
             board[move.row][move.col] = opponent;
+            movesCount++;
             showBoard();
+            int win = checkWin(opponent, movesCount);
+            
+            if (win == 1) {
+                printf("Player %c wins!\n", opponent);
+                break;
+            }
+            
+            if (win == 2) {
+                printf("It's a draw!\n");
+                break;
+            }
+
             currentPlayer = player;
+            continue;
         }
 
         printf("Player, enter your move (row and column 0-2): ");
         scanf("%d %d", &move.row, &move.col);
 
         if (!isValidMove(move)) {
-            printf("Invalid move!");
+            printf("Invalid move!\n");
             continue;
         }
 
-        board[move.row][move.col] = currentPlayer;
+        board[move.row][move.col] = player;
         movesCount++;
+        showBoard();
 
-        int win = checkWin(currentPlayer, movesCount);
-
+        int win = checkWin(player, movesCount);
         if (win == 1) {
-            showBoard();
-            printf("Player %c wins!", currentPlayer);
+            printf("Player %c wins!\n", player);
             break;
         }
 
         if (win == 2) {
-            showBoard();
-            printf("It's a draw!");
+            printf("It's a draw!\n");
             break;
         }
-
+        
         currentPlayer = opponent;
     }
 
