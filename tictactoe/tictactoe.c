@@ -23,6 +23,26 @@ void showBoard() {
     printf(" %c | %c | %c \n\n", board[2][0], board[2][1], board[2][2]);
 }
 
+int isValidMove(struct Move move) {
+    return board[move.col][move.row] == noone;
+}
+
 int main() {
     showBoard();
+
+    char currentPlayer = player;
+    struct Move move;
+    
+    // Todo -> Game running
+    while (1) {
+        printf("Player %c, enter your move (row and column 0-2): ", currentPlayer);
+        scanf("%d %d", &move.row, &move.col);
+
+        if (!isValidMove(move)) {
+            printf("Invalid move!");
+            continue;
+        }
+
+        
+    }
 }
