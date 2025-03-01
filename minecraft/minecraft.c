@@ -1,9 +1,25 @@
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#else
 #include <arpa/inet.h>
+#include <unistd.h>
+#endif
+
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h> 
+
+#define PORT 25565
+#define BUFFER_SIZE 4096
+
+#ifdef _WIN32
+#define CLOSE_SOCKET(s) closesocket(s)
+#else
+#define CLOSE_SOCKET(s) close(s)
+#endif
 
 #define PORT 25565
 #define BUFFER_SIZE 4096
@@ -61,14 +77,14 @@ void *handle_client(void *socket_desc) {
     // Read packet length
     if (!read_varint(client_socket, &length)) {
         printf("Client disconnected (failed to read length).\n");
-        close(client_socket);
+        CLOSE_SOCKET(client_socket);
         return NULL;
     }
 
     // Read full packet
     if (read(client_socket, buffer, length) <= 0) {
         printf("Client disconnected (failed to read data).\n");
-        close(client_socket);
+        CLOSE_SOCKET(client_socket);
         return NULL;
     }
 
@@ -100,11 +116,19 @@ void *handle_client(void *socket_desc) {
     
     }
 
-    close(client_socket);
+    CLOSE_SOCKET(client_socket);
     return NULL;
 }
 
 int main() {
+#ifdef _WIN32
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+        fprintf(stderr, "Failed to initialize Winsock.\n");
+        return 1;
+    }
+#endif
+
     int server_fd;
     struct sockaddr_in address;
     socklen_t addrlen = sizeof(address);
@@ -159,6 +183,11 @@ int main() {
         pthread_detach(client_thread); // Automatically cleans up thread resources
     }
 
-    close(server_fd);
+    CLOSE_SOCKET(server_fd);
+
+#ifdef _WIN32
+    WSACleanup();
+#endif
+
     return 0;
 }
