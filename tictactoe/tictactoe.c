@@ -24,7 +24,25 @@ void showBoard() {
 }
 
 int isValidMove(struct Move move) {
-    return board[move.col][move.row] == noone;
+    return board[move.row][move.col] == noone;
+}
+
+int checkWin(char player) {
+    // Check for rows and columns
+    for (int i = 0; i < 3; i++) {
+        if ((board[i][0] == player && board[i][1] == player && board[i][2] == player) ||
+            (board[0][i] == player && board[1][i] == player && board[2][i] == player)) {
+            return 1;
+        }
+    }
+
+    // Check diagonals
+    if ((board[0][0] == player && board[1][1] == player && board[2][2] == player) ||
+        (board[0][2] == player && board[1][1] == player && board[2][0] == player)) {
+        return 1;
+    }
+
+    return 0;
 }
 
 int main() {
@@ -32,6 +50,7 @@ int main() {
 
     char currentPlayer = player;
     struct Move move;
+    int movesCount = 0;
     
     // Todo -> Game running
     while (1) {
@@ -43,6 +62,22 @@ int main() {
             continue;
         }
 
-        
+        board[move.row][move.col] = currentPlayer;
+        showBoard();
+        movesCount++;
+
+        if (checkWin(currentPlayer)) {
+            printf("Player %c wins!", currentPlayer);
+            break;
+        }
+
+        if (movesCount == 9) {
+            printf("It's a draw!");
+            break;
+        }
+
+        currentPlayer = (currentPlayer == player) ? opponent : player;
     }
+
+    return 0;
 }
